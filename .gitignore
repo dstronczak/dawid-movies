@@ -1,0 +1,7 @@
+# Python scripts (data fetching only, not needed for hosting)
+*.py
+movies_data.json
+
+# IDE / OS
+.DS_Store
+.claude/

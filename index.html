@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zgadnij ocenę Dawida</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0f0f1a;
+  --card: #1a1a2e;
+  --accent: #e94560;
+  --accent2: #0f3460;
+  --gold: #f5c518;
+  --text: #eee;
+  --text-dim: #888;
+  --success: #2ecc71;
+  --fail: #e74c3c;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.container { max-width: 700px; margin: 0 auto; padding: 20px; }
+
+.header { text-align: center; padding: 40px 0 20px; }
+.header h1 {
+  font-size: 2rem; font-weight: 900;
+  background: linear-gradient(135deg, var(--accent), var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.header p { color: var(--text-dim); margin-top: 8px; font-size: 0.95rem; }
+
+.progress-bar { width: 100%; height: 6px; background: var(--card); border-radius: 3px; margin: 20px 0; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--gold)); border-radius: 3px; transition: width 0.5s ease; }
+
+.stats { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-dim); margin-bottom: 20px; }
+.stats .score { color: var(--gold); font-weight: 700; }
+
+.movie-card { background: var(--card); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.3); animation: slideUp 0.4s ease; }
+
+@keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+.movie-top { display: flex; gap: 20px; padding: 24px; }
+
+.poster-wrap { flex-shrink: 0; width: 140px; height: 210px; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+.poster-wrap img { width: 100%; height: 100%; object-fit: cover; }
+
+.movie-info { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.movie-info h2 { font-size: 1.35rem; font-weight: 700; line-height: 1.2; }
+.movie-info .original-title { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+
+.movie-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.meta-badge { background: rgba(255,255,255,0.08); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; color: var(--text-dim); }
+
+.movie-desc { font-size: 0.9rem; color: #ccc; line-height: 1.5; margin-top: 8px; }
+
+.rating-section { padding: 20px 24px 28px; border-top: 1px solid rgba(255,255,255,0.06); }
+.rating-label { text-align: center; font-size: 0.9rem; color: var(--text-dim); margin-bottom: 14px; }
+.rating-buttons { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+
+.rating-btn {
+  width: 52px; height: 52px; border: 2px solid rgba(255,255,255,0.12); background: transparent;
+  color: var(--text); font-size: 1.1rem; font-weight: 700; border-radius: 12px;
+  cursor: pointer; transition: all 0.2s ease; font-family: 'Inter', sans-serif;
+}
+.rating-btn:hover { border-color: var(--gold); background: rgba(245,197,24,0.1); transform: scale(1.1); }
+.rating-btn:active { transform: scale(0.95); }
+.rating-btn.correct { background: var(--success); border-color: var(--success); color: #fff; animation: pop 0.3s ease; }
+.rating-btn.wrong { background: var(--fail); border-color: var(--fail); color: #fff; opacity: 0.7; }
+.rating-btn.actual { border-color: var(--gold); background: rgba(245,197,24,0.2); color: var(--gold); box-shadow: 0 0 12px rgba(245,197,24,0.3); }
+
+@keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+.result-feedback { text-align: center; padding: 16px; font-size: 1.1rem; font-weight: 700; animation: fadeIn 0.3s ease; }
+.result-feedback.correct { color: var(--success); }
+.result-feedback.wrong { color: var(--fail); }
+.result-feedback .detail { font-size: 0.85rem; font-weight: 400; color: var(--text-dim); margin-top: 4px; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.next-btn {
+  display: block; margin: 16px auto 0; padding: 12px 32px;
+  background: linear-gradient(135deg, var(--accent), #c0392b); color: #fff;
+  border: none; border-radius: 10px; font-size: 1rem; font-weight: 600;
+  cursor: pointer; font-family: 'Inter', sans-serif; transition: transform 0.2s;
+}
+.next-btn:hover { transform: scale(1.05); }
+
+.final-screen { text-align: center; padding: 60px 20px; animation: slideUp 0.5s ease; }
+.final-screen .big-score {
+  font-size: 5rem; font-weight: 900;
+  background: linear-gradient(135deg, var(--gold), var(--accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.final-screen .subtitle { font-size: 1.2rem; color: var(--text-dim); margin: 12px 0 30px; }
+.final-screen .breakdown { display: flex; justify-content: center; gap: 24px; margin-bottom: 30px; }
+.breakdown-item { text-align: center; }
+.breakdown-item .num { font-size: 2rem; font-weight: 700; }
+.breakdown-item .label { font-size: 0.8rem; color: var(--text-dim); }
+.breakdown-item.exact .num { color: var(--success); }
+.breakdown-item.close .num { color: var(--gold); }
+.breakdown-item.off .num { color: var(--fail); }
+
+.restart-btn {
+  padding: 14px 40px; background: linear-gradient(135deg, var(--accent), var(--gold)); color: #fff;
+  border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700;
+  cursor: pointer; font-family: 'Inter', sans-serif; transition: transform 0.2s;
+}
+.restart-btn:hover { transform: scale(1.05); }
+
+.start-screen { text-align: center; padding: 60px 20px; }
+.start-screen .emoji { font-size: 4rem; margin-bottom: 20px; }
+.start-screen h2 { font-size: 1.5rem; margin-bottom: 12px; }
+.start-screen p { color: var(--text-dim); margin-bottom: 30px; line-height: 1.6; }
+
+.mode-buttons { display: flex; flex-direction: column; gap: 12px; max-width: 320px; margin: 0 auto; }
+.mode-btn {
+  padding: 16px; border: 2px solid rgba(255,255,255,0.1); background: var(--card);
+  color: var(--text); border-radius: 12px; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s;
+}
+.mode-btn:hover { border-color: var(--accent); background: rgba(233,69,96,0.1); }
+.mode-btn .mode-title { font-size: 1.1rem; font-weight: 700; }
+.mode-btn .mode-desc { font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; }
+
+@media (max-width: 500px) {
+  .movie-top { flex-direction: column; align-items: center; text-align: center; }
+  .poster-wrap { width: 160px; height: 240px; }
+  .movie-meta { justify-content: center; }
+  .rating-btn { width: 44px; height: 44px; font-size: 1rem; }
+  .header h1 { font-size: 1.6rem; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Zgadnij ocenę Dawida</h1>
+    <p>Jak Dawid ocenił te filmy na Filmwebie?</p>
+  </div>
+  <div id="app"></div>
+</div>
+<script>
+const MOVIES = [{"id": 712896, "title": "Nowy początek", "originalTitle": "Arrival", "year": 2016, "posterPath": "/28/96/712896/7756000_1.$.jpg", "rating": 8, "director": "Denis Villeneuve", "description": "Po serii lądowań obcych na Ziemi wojsko werbuje ekspertkę lingwistyki, której zadaniem jest odkrycie nastawienia przybyszy z kosmosu."}, {"id": 10062712, "title": "Pomoc domowa", "originalTitle": "The Housemaid", "year": 2025, "posterPath": "/27/12/10062712/8216065.$.jpg", "rating": 7, "director": "Paul Feig", "description": "Uciekająca przed demonami przeszłości Millie, przyjmuje pracę w domu bogatego małżeństwa, którego mroczne tajemnice wkrótce okażą się dla niej..."}, {"id": 221158, "title": "Mała Miss", "originalTitle": "Little Miss Sunshine", "year": 2006, "posterPath": "/11/58/221158/7524126_2.$.jpg", "rating": 7, "director": "Jonathan Dayton", "description": "Dysfunkcyjna rodzina wyrusza w daleką podróż małym busem, by 7-letnia Olive mogła wziąć udział w konkursie piękności dla dzieci."}, {"id": 10049380, "title": "To nie mój film", "originalTitle": "To nie mój film", "year": 2024, "posterPath": "/93/80/10049380/8153182.$.jpg", "rating": 7, "director": "Maria Zbąska", "description": "W czasach, gdy wszystko jest jednorazowe i łatwe do wymiany, Wanda i Janek podejmą próbę naprawy relacji, w której jeszcze nie wszystko jest stracone."}, {"id": 10015514, "title": "Dobrzy nieznajomi", "originalTitle": "All of Us Strangers", "year": 2023, "posterPath": "/55/14/10015514/8109586_1.$.jpg", "rating": 7, "director": "Andrew Haigh", "description": "Po spotkaniu z tajemniczym sąsiadem scenarzysta Adam niespodziewanie trafia do rodzinnego domu, w którym odkrywa, że zmarli rodzice nadal żyją."}, {"id": 10021076, "title": "Teściowie 2", "originalTitle": "Teściowie 2", "year": 2023, "posterPath": "/10/76/10021076/8084175_2.$.jpg", "rating": 6, "director": "Kalina Alabrudzińska", "description": "Komiczno-ironiczna opowieść o tym jaki jest stan małżeństwa z trzydziestoletnim stażem, o różnicy pokoleniowej w związku, która wciąż wydaje się być tematem tabu..."}, {"id": 682272, "title": "Kingsman: Tajne służby", "originalTitle": "Kingsman: The Secret Service", "year": 2014, "posterPath": "/22/72/682272/7659878_1.$.jpg", "rating": 7, "director": "Matthew Vaughn", "description": "Agent służb specjalnych bierze pod swoje skrzydła nowicjusza, aby przekazać mu wiedzę zdobytą przez lata pracy."}, {"id": 10034351, "title": "Perfect Days", "originalTitle": "", "year": 2023, "posterPath": "/43/51/10034351/8117713_1.$.jpg", "rating": 8, "director": "Wim Wenders", "description": "Dozorca w Japonii docenia uroki prostego życia."}, {"id": 10032723, "title": "Anatomia upadku", "originalTitle": "Anatomie d'une chute", "year": 2023, "posterPath": "/27/23/10032723/8111056_1.$.jpg", "rating": 9, "director": "Justine Triet", "description": "Mężczyzna upada z wysokości i ginie. Czy jego żona jest za to odpowiedzialna?"}, {"id": 10014103, "title": "Strefa interesów", "originalTitle": "The Zone of Interest", "year": 2023, "posterPath": "/41/03/10014103/8110905_2.$.jpg", "rating": 9, "director": "Jonathan Glazer", "description": "Komendant obozu koncentracyjnego Auschwitz-Birkenau Rudolf Höss i jego żona Hedwiga próbują ułożyć sobie rodzinne życie w..."}, {"id": 33386, "title": "Starsza pani musi zniknąć", "originalTitle": "Duplex", "year": 2003, "posterPath": "/33/86/33386/7006903_1.$.jpg", "rating": 7, "director": "Danny DeVito", "description": "Alex i Nancy odnajdują mieszkanie swoich marzeń, ale życie uprzykrza im starsza pani mieszkająca piętro wyżej."}, {"id": 587175, "title": "Wyścig z czasem", "originalTitle": "In Time", "year": 2011, "posterPath": "/71/75/587175/7390945_1.$.jpg", "rating": 7, "director": "Andrew Niccol", "description": "W społeczeństwie przyszłości walutą jest czas. Najbogatsi, czyli młodzi, zdrowi i piękni mogą żyć tysiące lat, podczas gdy biedota budzi się co rano, mając do..."}, {"id": 856901, "title": "Duchy Inisherin", "originalTitle": "The Banshees of Inisherin", "year": 2022, "posterPath": "/69/01/856901/8054045_1.$.jpg", "rating": 5, "director": "Martin McDonagh", "description": "Życie dwóch długoletnich znajomych znajduje się w impasie, gdy jeden z nich nagle kończy ich przyjaźń, co ma nieoczekiwane konsekwencje dla..."}, {"id": 10015975, "title": "Filip", "originalTitle": "Filip", "year": 2022, "posterPath": "/59/75/10015975/8053010_1.$.jpg", "rating": 6, "director": "Michał Kwieciński", "description": "Filip, dwudziestokilkuletni atrakcyjny mężczyzna, godzi pracę kelnera w luksusowym hotelu z korzystaniem z życia w czasach, które jego radościom nie sprzyjają. Przyjemność nie..."}, {"id": 805204, "title": "Czas krwawego księżyca", "originalTitle": "Killers of the Flower Moon", "year": 2023, "posterPath": "/52/04/805204/8092241_2.$.jpg", "rating": 7, "director": "Martin Scorsese", "description": "Gdy na terenie zamieszkiwanym przez Osagów odkryta zostaje ropa naftowa, członkowie plemienia zaczynają ginąć lub umierać z nieznanych..."}, {"id": 10025670, "title": "Wszystko o moim starym", "originalTitle": "About My Father", "year": 2023, "posterPath": "/56/70/10025670/8070111_2.$.jpg", "rating": 7, "director": "Laura Terruso", "description": "Prostolinijny włoski imigrant o południowym temperamencie kontra rodzina konserwatywnych bogaczy, którzy na wszystkich patrzą z góry. Co..."}, {"id": 830296, "title": "Last Christmas", "originalTitle": "", "year": 2019, "posterPath": "/02/96/830296/7908307_2.$.jpg", "rating": 8, "director": "Paul Feig", "description": "Kate to pechowa dziewczyna pracująca jako asystentka Świętego Mikołaja w londyńskim domu towarowym. Kiedy poznaje Toma, jej życie zaczyna się zmieniać na lepsze. "}, {"id": 10002817, "title": "Oppenheimer", "originalTitle": "", "year": 2023, "posterPath": "/28/17/10002817/8072064_2.$.jpg", "rating": 10, "director": "Christopher Nolan", "description": "Historia amerykańskiego naukowca J. Roberta Oppenheimera i jego roli w stworzeniu bomby atomowej."}, {"id": 10039424, "title": "Zdumiewająca historia Henry’ego Sugara", "originalTitle": "The Wonderful Story of Henry Sugar", "year": 2023, "posterPath": "/94/24/10039424/8091891_2.$.jpg", "rating": 8, "director": "Wes Anderson", "description": "Ekranizacja popularnego opowiadania Roalda Dahla o bogaczu, który dowiaduje się o istnieniu guru,..."}, {"id": 412640, "title": "Boski chillout", "originalTitle": "Pineapple Express", "year": 2008, "posterPath": "/26/40/412640/7213404_2.$.jpg", "rating": 8, "director": "David Gordon Green", "description": "Palacz marihuany zostaje świadkiem morderstwa. Ucieka przed przestępcami próbującymi go wyeliminować."}, {"id": 375547, "title": "Mamma Mia!", "originalTitle": "", "year": 2008, "posterPath": "/55/47/375547/7199666_2.$.jpg", "rating": 7, "director": "Phyllida Lloyd ", "description": "Dwie historie miłosne z piosenkami ABBY w tle. Młodziutka Sophie próbuje ustalić kto jest jej ojcem, by ten podczas ślubu odprowadził ją do ołtarza."}, {"id": 796933, "title": "I że ci nie odpuszczę", "originalTitle": "Overboard", "year": 2018, "posterPath": "/69/33/796933/7845944_2.$.jpg", "rating": 7, "director": "Rob Greenberg", "description": "Gdy bogaty playboy traci pamięć, samotna Kate udaje, że jest jego żoną. Ku jej zaskoczeniu beztroski macho zaczyna doskonale odnajdywać się jako tata i..."}, {"id": 10021334, "title": "Mężczyzna imieniem Otto", "originalTitle": "A Man Called Otto", "year": 2022, "posterPath": "/13/34/10021334/8054307_1.$.jpg", "rating": 8, "director": "Marc Forster", "description": "Po śmierci ukochanej żony, zgorzkniały Otto postanawia popełnić samobójstwo. Wszelkie próby są niweczone przez jego nowych..."}, {"id": 835486, "title": "Obiecująca. Młoda. Kobieta.", "originalTitle": "Promising Young Woman", "year": 2020, "posterPath": "/54/86/835486/7945202_2.$.jpg", "rating": 9, "director": "Emerald Fennell", "description": "Po tym jak tragiczne wydarzenia przekreśliły przyszłość Cassandry, młoda kobieta szuka zemsty na tych, którzy stają jej na..."}, {"id": 875819, "title": "Teściowie", "originalTitle": "Teściowie", "year": 2021, "posterPath": "/58/19/875819/7964821_2.$.jpg", "rating": 6, "director": "Jakub Michalczuk", "description": "Szalona opowieść o tym, co się może wydarzyć, gdy puszczają nerwy. To film o konfrontacji dwóch światów, która doprowadzi do łez nie tylko bywalców..."}, {"id": 706142, "title": "Młodość", "originalTitle": "Youth", "year": 2015, "posterPath": "/61/42/706142/7752357_2.$.jpg", "rating": 7, "director": "Paolo Sorrentino", "description": "Fred i Mick, przyjaciele, którzy niebawem przekroczą próg osiemdziesięciu lat, wyjeżdżają do hotelu pod Alpami, gdzie wspominają swoją przeszłość."}, {"id": 698547, "title": "Shang-Chi i legenda dziesięciu pierścieni", "originalTitle": "Shang-Chi and the Legend of the Ten Rings", "year": 2021, "posterPath": "/85/47/698547/7972234_2.$.jpg", "rating": 6, "director": "Destin Daniel Cretton", "description": "Shang-Chi i legenda dziesięciu pierścieni (2021) Shang-Chi and the Legend of the Ten Rings - Simu Liu wciela się w Shang-Chi, który musi zmierzyć się z przeszłością po tym, jak zostaje..."}, {"id": 876037, "title": "Kryptonim Polska", "originalTitle": "Kryptonim Polska", "year": 2022, "posterPath": "/60/37/876037/8025391_1.$.jpg", "rating": 5, "director": "Piotr Kumik", "description": "Dwa zwalczające się środowiska, dwa przeciwstawne pomysły na życie, a w tym wszystkim ona i on... I miłosne uczucie wystawione na największą próbę."}, {"id": 3690, "title": "Ace Ventura: Psi detektyw", "originalTitle": "Ace Ventura: Pet Detective", "year": 1994, "posterPath": "/36/90/3690/6956720_1.$.jpg", "rating": 7, "director": "Tom Shadyac", "description": "Detektyw specjalizujący się w odnajdywaniu zaginionych zwierząt poszukuje ukradzionego delfina – maskotki drużyny futbolowej."}, {"id": 34887, "title": "Dwóch gniewnych ludzi", "originalTitle": "Anger Management", "year": 2003, "posterPath": "/48/87/34887/6900612_1.$.jpg", "rating": 4, "director": "Peter Segal", "description": "Młody pechowiec zostaje skierowany do ekscentrycznego doktora. Demoniczny terapeuta nie odstępuje go na krok i sprawia, że jego życie staje się..."}, {"id": 31497, "title": "Tożsamość Bourne'a", "originalTitle": "The Bourne Identity", "year": 2002, "posterPath": "/14/97/31497/7521213_1.$.jpg", "rating": 8, "director": "Doug Liman", "description": "Jason Bourne w wyniku wypadku traci pamięć. Wszystko wskazuje na to, że był członkiem tajnego programu CIA."}, {"id": 106415, "title": "Krucjata Bourne'a", "originalTitle": "The Bourne Supremacy", "year": 2004, "posterPath": "/64/15/106415/7525660_2.$.jpg", "rating": 8, "director": "Paul Greengrass", "description": "Ktoś podszywa się pod Bourne'a i morduje agentów CIA w Berlinie. Po nieudanym zamachu na swoje życie były agent ponownie stawia czoła..."}, {"id": 188513, "title": "Ultimatum Bourne'a", "originalTitle": "The Bourne Ultimatum", "year": 2007, "posterPath": "/85/13/188513/7521195_2.$.jpg", "rating": 8, "director": "Paul Greengrass", "description": "Jason Bourne wpada na trop tajnego programu CIA \"Blackbriar\", który ma związek z mroczną przeszłością agenta."}, {"id": 732812, "title": "Jason Bourne", "originalTitle": "", "year": 2016, "posterPath": "/28/12/732812/7742307_2.$.jpg", "rating": 6, "director": "Paul Greengrass", "description": "Znając własną tożsamość, Jason Bourne próbuje rozwikłać zagadkę śmierci swojego ojca."}, {"id": 837168, "title": "Nomadland", "originalTitle": "", "year": 2020, "posterPath": "/71/68/837168/7950634_2.$.jpg", "rating": 7, "director": "Chlo&eacute; Zhao", "description": "Kobieta po sześćdziesiątce wybiera wędrowne życie współczesnego nomady, po tym jak w wyniku recesji straciła swój dobytek."}, {"id": 744327, "title": "Pitch Perfect 3", "originalTitle": "Pitch Perfect 3", "year": 2017, "posterPath": "/43/27/744327/7816386_1.$.jpg", "rating": 7, "director": "Trish Sie", "description": "Dorosłe dziewczyny z The Barden Bellas łączą swoje siły podczas międzynarodowego tournée."}, {"id": 853675, "title": "Wszystko wszędzie naraz", "originalTitle": "Everything Everywhere All at Once", "year": 2022, "posterPath": "/36/75/853675/8004163_1.$.jpg", "rating": 10, "director": "Dan Kwan", "description": "Borykająca się z trudami codzienności kobieta w średnim wieku zostaje wciągnięta w szaloną przygodę, w której sama może..."}, {"id": 838872, "title": "Na rauszu", "originalTitle": "Druk", "year": 2020, "posterPath": "/88/72/838872/7957455_1.$.jpg", "rating": 7, "director": "Thomas Vinterberg", "description": "Czwórka nauczycieli pracujących w gimnazjum testuje alkoholową metodę, która ma polepszyć jakość ich życia."}, {"id": 849941, "title": "Hamilton", "originalTitle": "", "year": 2020, "posterPath": "/99/41/849941/8205012.$.jpg", "rating": 8, "director": "Thomas Kail", "description": "Historia Alexandra Hamiltona - osieroconego imigranta, który przybywa do Nowego Jorku, by w przyszłości zostać jednym z ojców założycieli Stanów Zjednoczonych..."}, {"id": 712251, "title": "Cicha noc", "originalTitle": "The Night Before", "year": 2015, "posterPath": "/22/51/712251/7788897_2.$.jpg", "rating": 3, "director": "Jonathan Levine", "description": "Podczas świątecznego spotkania trzech najlepszych przyjaciół postanawia wyruszyć na poszukiwanie Świętego Graala."}, {"id": 632560, "title": "Pitch Perfect", "originalTitle": "", "year": 2012, "posterPath": "/25/60/632560/7728439_2.$.jpg", "rating": 8, "director": "Jason Moore", "description": "Beca, studentka pierwszego roku na Barden University, dołącza do damskiego chóru szkolnego, The Bellas, który startuje w zawodach a capella."}, {"id": 687065, "title": "Pitch Perfect 2", "originalTitle": "", "year": 2015, "posterPath": "/70/65/687065/7688565_1.$.jpg", "rating": 7, "director": "Elizabeth Banks", "description": "Zespół a cappella przystępuje do międzynarodowego konkursu, w którym nigdy nie zwyciężyła grupa z Ameryki."}, {"id": 430867, "title": "Na Zachodzie bez zmian", "originalTitle": "Im Westen nichts Neues", "year": 2022, "posterPath": "/08/67/430867/8035016_1.$.jpg", "rating": 8, "director": "Edward Berger", "description": "Przerażające przeżycia młodego niemieckiego żołnierza na froncie zachodnim podczas I wojny światowej."}, {"id": 839732, "title": "Kolacja po amerykańsku", "originalTitle": "Dinner in America", "year": 2020, "posterPath": "/97/32/839732/7968978_1.$.jpg", "rating": 8, "director": "Adam Rehmeier", "description": "Niespokojny duchem punkrockowiec i dziewczyna mająca obsesję na punkcie jego zespołu wyruszają wspólnie w podróż przez podupadające..."}, {"id": 765221, "title": "Nawet nie wiesz, jak bardzo Cię kocham", "originalTitle": "Nawet nie wiesz, jak bardzo Cię kocham", "year": 2016, "posterPath": "/52/21/765221/7786551_1.$.jpg", "rating": 8, "director": "Paweł Łoziński", "description": "Dwie kobiety spotykają się w gabinecie psychoterapeuty, który zabiera je w trudną podróż ku polepszeniu ich relacji."}, {"id": 874065, "title": "Najgorszy człowiek na świecie", "originalTitle": "Verdens verste menneske", "year": 2021, "posterPath": "/40/65/874065/7995145_1.$.jpg", "rating": 7, "director": "Joachim Trier", "description": "Pełna życiowej energii Julie u progu trzydziestych urodzin stara się poukładać swoje skomplikowane życie uczuciowe."}, {"id": 731322, "title": "Rekiny wojny", "originalTitle": "War Dogs", "year": 2016, "posterPath": "/13/22/731322/7748265_2.$.jpg", "rating": 7, "director": "Todd Phillips", "description": "Historia mężczyzn, którzy wykorzystując mało znany projekt rządowy, biorą udział w przetargach na kontrakty dla amerykańskiej armii."}, {"id": 10015476, "title": "Athena", "originalTitle": "", "year": 2022, "posterPath": "/54/76/10015476/8028616_1.$.jpg", "rating": 8, "director": "Romain Gavras", "description": "Wkrótce po tragicznej śmierci najmłodszego brata w niewyjaśnionych okolicznościach w życie trzech starszych wkrada się chaos."}, {"id": 10006528, "title": "Powodzenia, Leo Grande", "originalTitle": "Good Luck to You, Leo Grande", "year": 2022, "posterPath": "/65/28/10006528/8018698_2.$.jpg", "rating": 5, "director": "Sophie Hyde", "description": "Nancy po śmierci pruderyjnego męża postanawia poznać, co straciła przez lata małżeństwa. "}, {"id": 371687, "title": "Bracia przyrodni", "originalTitle": "Step Brothers", "year": 2008, "posterPath": "/16/87/371687/7315892_2.$.jpg", "rating": 7, "director": "Adam McKay", "description": "Po ślubie swoich rodziców dwóch mężczyzn w średnim wieku zostaje przyrodnimi braćmi i współlokatorami."}, {"id": 1262, "title": "Stowarzyszenie Umarłych Poetów", "originalTitle": "Dead Poets Society", "year": 1989, "posterPath": "/12/62/1262/7332828_1.$.jpg", "rating": 9, "director": "Peter Weir", "description": "Charyzmatyczny nauczyciel języka angielskiego w konserwatywnym liceum stara się wpoić uczniom miłość do poezji i ideę \"carpe..."}, {"id": 744484, "title": "W starym, dobrym stylu", "originalTitle": "Going in Style", "year": 2017, "posterPath": "/44/84/744484/7784954_2.$.jpg", "rating": 7, "director": "Zach Braff", "description": "Trzej zdesperowani emeryci postanawiają napaść na bank, który pozbawił ich oszczędności."}, {"id": 40252, "title": "Efekt motyla", "originalTitle": "The Butterfly Effect", "year": 2004, "posterPath": "/02/52/40252/7535972_1.$.jpg", "rating": 8, "director": "J. Mackye Gruber", "description": "Evan, który potrafi podróżować w czasie, przekona się, że nawet najdrobniejsza zmiana w przeszłości ma kolosalny wpływ na teraźniejszość."}, {"id": 1046, "title": "Taksówkarz", "originalTitle": "Taxi Driver", "year": 1976, "posterPath": "/10/46/1046/7943939_1.$.jpg", "rating": 8, "director": "Martin Scorsese", "description": "Nowojorski taksówkarz Travis Bickle podczas nocnej zmiany poznaje młodocianą prostytutkę, której pragnie pomóc."}, {"id": 691862, "title": "Teoria wszystkiego", "originalTitle": "The Theory of Everything", "year": 2014, "posterPath": "/18/62/691862/7667694_1.$.jpg", "rating": 8, "director": "James Marsh", "description": "Film opowiada historię genialnego naukowca Stephena Hawkinga - rozwoju jego choroby, rodzącego się uczucia do Jane, a w końcu rozpadu ich..."}, {"id": 866641, "title": "Dom Gucci", "originalTitle": "House of Gucci", "year": 2021, "posterPath": "/66/41/866641/7983314_2.$.jpg", "rating": 8, "director": "Ridley Scott", "description": "Historia Patrizii Reggiani, byłej żony Maurizio Gucciego, która planowała zabić swojego męża, wnuka znanego projektanta mody Guccio Gucci."}, {"id": 848823, "title": "Nie patrz w górę", "originalTitle": "Don't Look Up", "year": 2021, "posterPath": "/88/23/848823/7983647_1.$.jpg", "rating": 6, "director": "Adam McKay", "description": "Dwójka astronomów wyrusza w tournée po mediach, aby ostrzec ludzkość przed zmierzającą w stronę Ziemi zabójczą kometą."}, {"id": 11500, "title": "W krzywym zwierciadle: Witaj, Święty Mikołaju", "originalTitle": "Christmas Vacation", "year": 1989, "posterPath": "/15/00/11500/7231990_1.$.jpg", "rating": 6, "director": "Jeremiah S. Chechik", "description": "Clark Griswold chce dla swojej rodziny zorganizować idealne Boże Narodzenie. Przeszkadza mu w tym nieustannie prześladujący go..."}, {"id": 1216, "title": "Poszukiwacze zaginionej Arki", "originalTitle": "Raiders of the Lost Ark", "year": 1981, "posterPath": "/12/16/1216/7211116_1.$.jpg", "rating": 6, "director": "Steven Spielberg", "description": "Rok 1936. Na zlecenie służb specjalnych amerykański archeolog, Indiana Jones, wyrusza do Egiptu, by odnaleźć legendarną Arkę Przymierza."}, {"id": 619201, "title": "Bohemian Rhapsody", "originalTitle": "", "year": 2018, "posterPath": "/92/01/619201/7863180_2.$.jpg", "rating": 8, "director": "Bryan Singer", "description": "Dzięki oryginalnemu brzmieniu Queen staje się jednym z najpopularniejszych zespołów w historii muzyki."}, {"id": 785157, "title": "Puk, puk", "originalTitle": "Toc Toc", "year": 2017, "posterPath": "/51/57/785157/7831907_2.$.jpg", "rating": 8, "director": "Vicente Villanueva", "description": "Grupa pacjentów cierpiących na OCD czeka w poczekalni na spóźnionego lekarza, próbując poradzić sobie z ekscentrycznymi dziwactwami..."}, {"id": 595630, "title": "Agent i pół", "originalTitle": "Central Intelligence", "year": 2016, "posterPath": "/56/30/595630/7747230_1.$.jpg", "rating": 7, "director": "Rawson Marshall Thurber", "description": "Po odnowieniu kontaktu ze starym znajomym przez Facebooka księgowy zostaje zwerbowany do międzynarodowego wywiadu."}, {"id": 783759, "title": "Fanatyk", "originalTitle": "Fanatyk", "year": 2017, "posterPath": "/37/59/783759/7820215_2.$.jpg", "rating": 8, "director": "Michał Tylka", "description": "Ekranizacja słynnej pasty o ojcu-fanatyku wędkarstwa autorstwa Malcolma XD."}, {"id": 349210, "title": "007 Quantum of Solace", "originalTitle": "Quantum of Solace", "year": 2008, "posterPath": "/92/10/349210/7213406_2.$.jpg", "rating": 7, "director": "Marc Forster", "description": "Agent 007 szuka osób odpowiedzialnych za śmierć ukochanej Vesper. Trop prowadzi do organizacji Quantum, której członkowie planują przejąć..."}, {"id": 817417, "title": "Jojo Rabbit", "originalTitle": "", "year": 2019, "posterPath": "/74/17/817417/7911352_2.$.jpg", "rating": 4, "director": "Taika Waititi", "description": "Młody Niemiec Jojo, członek nazistowskiej organizacji dla młodzieży Jungvolk, pomaga Żydówce. Jednocześnie próbuje pozostać nazistą."}, {"id": 293878, "title": "Oszukana", "originalTitle": "Changeling", "year": 2008, "posterPath": "/38/78/293878/7239133_1.$.jpg", "rating": 7, "director": "Clint Eastwood", "description": "Los Angeles, 1928 rok. Christine wychodzi do pracy, zostawiając kilkuletniego syna w domu. Gdy wraca, dziecka nie ma."}, {"id": 1052, "title": "Braveheart - Waleczne Serce", "originalTitle": "Braveheart", "year": 1995, "posterPath": "/10/52/1052/7911791_1.$.jpg", "rating": 8, "director": "Mel Gibson", "description": "Waleczne Serce (1995) Braveheart - Żona Williama Wallace'a zostaje zamordowana przez angielskich żołnierzy. Zrozpaczony Szkot mści się na oprawcach i prowadzi rodaków do walki..."}, {"id": 4833, "title": "Człowiek z blizną", "originalTitle": "Scarface", "year": 1983, "posterPath": "/48/33/4833/6935904_1.$.jpg", "rating": 7, "director": "Brian De Palma", "description": "Rok 1980. Pochodzący z Kuby przestępca, Tony Montana, tworzy w Miami narkotykowe imperium."}, {"id": 173500, "title": "Wyznania gejszy", "originalTitle": "Memoirs of a Geisha", "year": 2005, "posterPath": "/35/00/173500/7511208_1.$.jpg", "rating": 7, "director": "Rob Marshall", "description": "Dziewięcioletnia Chiyo zostaje sprzedana do domu gejsz. Jako dorosła i sławna jest świadkiem drugiej wojny światowej, która zmienia świat, w..."}, {"id": 11306, "title": "Ucieczka z Alcatraz", "originalTitle": "Escape from Alcatraz", "year": 1979, "posterPath": "/13/06/11306/7491661_1.$.jpg", "rating": 7, "director": "Don Siegel", "description": "Grupa więźniów osadzonych w rygorystycznym więzieniu Alcatraz postanawia z niego uciec."}, {"id": 207851, "title": "Plan doskonały", "originalTitle": "Inside Man", "year": 2006, "posterPath": "/78/51/207851/7127128_1.$.jpg", "rating": 8, "director": "Spike Lee", "description": "Doświadczony przestępca Dalton napada na bank. Jego doskonale opracowany plan komplikuje się, gdy do akcji wkracza policyjny negocjator i Madeleine White działająca..."}, {"id": 9509, "title": "Shrek", "originalTitle": "", "year": 2001, "posterPath": "/95/09/9509/7640796_1.$.jpg", "rating": 8, "director": "Andrew Adamson", "description": "By odzyskać swój dom, brzydki ogr z gadatliwym osłem wyruszają uwolnić piękną księżniczkę."}, {"id": 36365, "title": "Duża ryba", "originalTitle": "Big Fish", "year": 2003, "posterPath": "/63/65/36365/6956691_2.$.jpg", "rating": 6, "director": "Tim Burton", "description": "Schorowany Edward Bloom słynął z nieprawdopodobnych opowieści. Jego syn próbuje dociec, ile w nich było prawdy."}, {"id": 860225, "title": "Czego nauczyła mnie ośmiornica", "originalTitle": "My Octopus Teacher", "year": 2020, "posterPath": "/02/25/860225/7931025_2.$.jpg", "rating": 8, "director": "Pippa Ehrlich", "description": "Historia nietypowej przyjaźni pewnego filmowca i ośmiornicy zamieszkującej południowoafrykański las wodorostów, która..."}, {"id": 4258, "title": "Blow", "originalTitle": "Blow", "year": 2001, "posterPath": "/42/58/4258/7175829_1.$.jpg", "rating": 7, "director": "Ted Demme", "description": "Skromny syn robotnika staje się narkotykowym baronem. Pieniądze, władza, kobiety cieszą go jednak do czasu."}, {"id": 870298, "title": "Ciemne strony rybołówstwa", "originalTitle": "Seaspiracy", "year": 2021, "posterPath": "/02/98/870298/7953066_1.$.jpg", "rating": 8, "director": "Ali Tabrizi", "description": "Filmowiec zafascynowany morskim życiem postanawia udokumentować krzywdy, jakie ludzkość wyrządza wodnym stworzeniom i przy okazji odkrywa..."}, {"id": 743825, "title": "Klaus", "originalTitle": "", "year": 2019, "posterPath": "/38/25/743825/7901228_1.$.jpg", "rating": 8, "director": "Sergio Pablos", "description": "Początkujący listonosz zostaje wysłany na niewielką wyspę za kołem podbiegunowym. Jej mieszkańcy są ze sobą skłóceni, a - co gorsza - nikt nie wysyła tam listów."}, {"id": 998, "title": "Forrest Gump", "originalTitle": "", "year": 1994, "posterPath": "/09/98/998/8021615_1.$.jpg", "rating": 7, "director": "Robert Zemeckis", "description": "Historia życia Forresta, chłopca o niskim ilorazie inteligencji z niedowładem kończyn, który staje się miliarderem i bohaterem wojny w Wietnamie."}, {"id": 487211, "title": "Kac Vegas", "originalTitle": "The Hangover", "year": 2009, "posterPath": "/72/11/487211/7258810_2.$.jpg", "rating": 8, "director": "Todd Phillips", "description": "Czterech przyjaciół spędza wieczór kawalerski w Las Vegas. Następnego dnia okazuje się, że zgubili pana młodego i nic nie pamiętają."}, {"id": 719889, "title": "Player One", "originalTitle": "Ready Player One", "year": 2018, "posterPath": "/98/89/719889/7835365_2.$.jpg", "rating": 6, "director": "Steven Spielberg", "description": "W 2045 roku ludzie znajdują ukojenie w wirtualnej rzeczywistości. Jej twórca przed śmiercią postanawia cały majątek przekazać pierwszej osobie, która..."}, {"id": 839586, "title": "Palm Springs", "originalTitle": "", "year": 2020, "posterPath": "/95/86/839586/7936527_1.$.jpg", "rating": 7, "director": "Max Barbakow", "description": "Dwoje gości weselnych zostaje uwięzionych w pętli czasowej. Pomiędzy skazanymi na siebie ludźmi zaczyna rodzić się uczucie."}, {"id": 506803, "title": "Poradnik pozytywnego myślenia", "originalTitle": "Silver Linings Playbook", "year": 2012, "posterPath": "/68/03/506803/7516848_1.$.jpg", "rating": 7, "director": "David O. Russell", "description": "Pat Solitano, po tym jak stracił pracę, dom oraz żonę, spędził w szpitalu psychiatrycznym kilka miesięcy. Wrócić do społeczeństwa..."}, {"id": 817420, "title": "Dżentelmeni", "originalTitle": "The Gentlemen", "year": 2019, "posterPath": "/74/20/817420/7908436_2.$.jpg", "rating": 8, "director": "Guy Ritchie", "description": "Handlarz marihuany postanawia sprzedać narkotykowe imperium i przejść na emeryturę. Pożegnanie z półświatkiem nie będzie jednak tak łatwe, jak mogło mu się..."}, {"id": 848344, "title": "Minari", "originalTitle": "", "year": 2020, "posterPath": "/83/44/848344/7963634_1.$.jpg", "rating": 8, "director": "Lee Isaac Chung", "description": "W pogoni za amerykańskim snem koreańska rodzina przenosi się do Arkansas i zakłada farmę."}, {"id": 104189, "title": "Szkoła rocka", "originalTitle": "The School of Rock", "year": 2003, "posterPath": "/41/89/104189/6939246_3.$.jpg", "rating": 7, "director": "Richard Linklater", "description": "Bezrobotny rockman, podszywając się pod przyjaciela, rozpoczyna pracę w szkole jako nauczyciel. Chce, aby jego klasa wzięła udział w bitwie zespołów..."}, {"id": 700299, "title": "Wykolejona", "originalTitle": "Trainwreck", "year": 2015, "posterPath": "/02/99/700299/7695428_1.$.jpg", "rating": 5, "director": "Judd Apatow", "description": "Amy to kobieta marzenie z idealnym życiem zawodowym i towarzyskim, ale nie radzi sobie ze sprawami osobistymi."}, {"id": 13, "title": "Big Lebowski", "originalTitle": "The Big Lebowski", "year": 1998, "posterPath": "/00/13/13/8022744_1.$.jpg", "rating": 5, "director": "Joel Coen", "description": "Jeff \"Koleś\" Lebowski zostaje napadnięty przez gangsterów, którzy pomylili go z milionerem o tym samym nazwisku."}, {"id": 846099, "title": "Prime Time", "originalTitle": "Prime Time", "year": 2021, "posterPath": "/60/99/846099/8048279_1.$.jpg", "rating": 5, "director": "Jakub Piątek", "description": "Uzbrojony mężczyzna wchodzi do studia telewizyjnego i bierze zakładników. Jego celem jest wejście na wizję podczas prime time'u."}, {"id": 624741, "title": "Wyborcze jaja", "originalTitle": "The Campaign", "year": 2012, "posterPath": "/47/41/624741/7517139_2.$.jpg", "rating": 8, "director": "Jay Roach", "description": "Do ostatecznej walki o fotel kongresmena staje dwóch rywali."}, {"id": 857607, "title": "Jak najdalej stąd", "originalTitle": "Jak najdalej stąd", "year": 2020, "posterPath": "/76/07/857607/7930660_2.$.jpg", "rating": 6, "director": "Piotr Domalewski", "description": "Zbuntowana nastolatka, której ojciec zginął w wypadku na budowie, musi sama pojechać do Irlandii, aby sprowadzić ciało taty do Polski."}, {"id": 863035, "title": "Biały Tygrys", "originalTitle": "The White Tiger", "year": 2021, "posterPath": "/30/35/863035/7943326_2.$.jpg", "rating": 8, "director": "Ramin Bahrani", "description": "Ambitny kierowca z Indii wykorzystuje swój spryt, aby wyrwać się z biedy i wejść na sam szczyt."}, {"id": 752725, "title": "Dobrze się kłamie w miłym towarzystwie", "originalTitle": "Perfetti sconosciuti", "year": 2016, "posterPath": "/27/25/752725/7768932_2.$.jpg", "rating": 8, "director": "Paolo Genovese", "description": "Grupa przyjaciół podczas wspólnej kolacji postanawia w ramach niewinnej zabawy upublicznić wszystkie swoje e-maile,..."}, {"id": 752532, "title": "Winter on Fire: Ukraine's Fight for Freedom", "originalTitle": "Winter on Fire", "year": 2015, "posterPath": "/25/32/752532/7721090_1.$.jpg", "rating": 8, "director": "Evgeny Afineevsky", "description": "Ukraińska demonstracja studencka dotycząca integracji europejskiej przeistacza się w rewolucję wzywającą do dymisji prezydenta..."}, {"id": 126171, "title": "Zagadka zbrodni", "originalTitle": "Sal-in-sui Choo-eok", "year": 2003, "posterPath": "/61/71/126171/7752269_2.$.jpg", "rating": 4, "director": "Joon-ho Bong", "description": "Zagadka zbrodni (2003) Sal-in-sui Choo-eok - W małym miasteczku dochodzi do serii morderstw młodych kobiet. Detektyw z Seulu przy pomocy miejscowej policji szuka sprawcy."}, {"id": 240046, "title": "W pogoni za szczęściem", "originalTitle": "The Pursuit of Happyness", "year": 2006, "posterPath": "/00/46/240046/7131963_1.$.jpg", "rating": 8, "director": "Gabriele Muccino", "description": "Film oparty na faktach. Chris, samotny ojciec pozbawiony domu, stara się mimo przeciwności losu o posadę w biurze maklerskim."}, {"id": 795165, "title": "Profesor i szaleniec", "originalTitle": "The Professor and the Madman", "year": 2019, "posterPath": "/51/65/795165/7894717_2.$.jpg", "rating": 6, "director": "Farhad Safinia", "description": "Profesor James Murray rozpoczyna pracę nad przygotowaniem słów do pierwszego wydania słownika Oxford English Dictionary."}, {"id": 1085, "title": "Blue Velvet", "originalTitle": "", "year": 1986, "posterPath": "/10/85/1085/7466037_1.$.jpg", "rating": 6, "director": "David Lynch", "description": "Jeffrey znajduje ludzkie ucho i zanosi je znajomemu detektywowi. Dowiedziawszy się od jego córki o piosenkarce pracującej w nocnym klubie, rozpoczyna śledztwo na własną..."}, {"id": 756160, "title": "Faworyta", "originalTitle": "The Favourite", "year": 2018, "posterPath": "/61/60/756160/7873012_1.$.jpg", "rating": 5, "director": "Y&oacute;rgos L&aacute;nthimos", "description": "Pojawienie się na angielskim dworze nowej służącej Abigail zaczyna zagrażać pozycji lady Sary, która rządzi krajem w zastępstwie schorowanej królowej..."}, {"id": 73, "title": "Jackie Brown", "originalTitle": "", "year": 1997, "posterPath": "/00/73/73/7986554_1.$.jpg", "rating": 8, "director": "Quentin Tarantino", "description": "Stewardessa przyłapana na nielegalnym przewożeniu pieniędzy z Meksyku do Los Angeles rozpoczyna grę między agentami FBI a handlarzem broni, dla którego pracowała."}, {"id": 299113, "title": "Avatar", "originalTitle": "Avatar", "year": 2009, "posterPath": "/91/13/299113/8028716_1.$.jpg", "rating": 6, "director": "James Cameron", "description": "Jake, sparaliżowany były komandos, zostaje wysłany na planetę Pandora, gdzie zaprzyjaźnia się z lokalną społecznością i postanawia jej pomóc."}];
+
+const POSTER_BASE = "https://fwcdn.pl/fpo";
+
+function getPosterUrl(p) {
+  return p ? POSTER_BASE + p.replace(".$.", ".3.") : "";
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let state = { screen: "start" };
+
+function startGame(count) {
+  state = {
+    screen: "game", movies: shuffle(MOVIES).slice(0, count),
+    current: 0, score: 0, exact: 0, close: 0, off: 0,
+    answered: false, totalQuestions: count, results: [],
+  };
+  render();
+}
+
+function answer(guess) {
+  if (state.answered) return;
+  state.answered = true;
+  const actual = state.movies[state.current].rating;
+  const diff = Math.abs(guess - actual);
+  let points = 0;
+  if (diff === 0) { points = 3; state.exact++; }
+  else if (diff === 1) { points = 1; state.close++; }
+  else { state.off++; }
+  state.score += points;
+  state.results.push({ guess, actual, diff, points });
+  render();
+}
+
+function nextQuestion() {
+  state.current++;
+  state.answered = false;
+  if (state.current >= state.totalQuestions) state.screen = "final";
+  render();
+}
+
+function getScoreMessage(pct) {
+  if (pct >= 90) return "Znasz Dawida lepiej ni\u017c on sam!";
+  if (pct >= 70) return "Prawie jak Dawid!";
+  if (pct >= 50) return "Nie\u017ale, znasz jego gust!";
+  if (pct >= 30) return "Jeszcze troch\u0119 i b\u0119dziesz ekspertem!";
+  return "Dawid jest trudny do odgadni\u0119cia!";
+}
+
+function render() {
+  const app = document.getElementById("app");
+
+  if (state.screen === "start") {
+    app.innerHTML = `
+      <div class="start-screen">
+        <div class="emoji">\ud83c\udfac</div>
+        <h2>Jak dobrze znasz gust filmowy Dawida?</h2>
+        <p>Dawid oceni\u0142 100 film\u00f3w na Filmwebie.<br>Spr\u00f3buj zgadn\u0105\u0107 jakie oceny wystawi\u0142!</p>
+        <p style="font-size:0.8rem;color:var(--text-dim)">
+          \ud83c\udfaf Trafienie = 3 pkt &nbsp;|&nbsp; \u00b11 = 1 pkt &nbsp;|&nbsp; Pud\u0142o = 0 pkt
+        </p>
+        <div class="mode-buttons">
+          <button class="mode-btn" onclick="startGame(10)">
+            <div class="mode-title">Szybka gra</div>
+            <div class="mode-desc">10 film\u00f3w</div>
+          </button>
+          <button class="mode-btn" onclick="startGame(25)">
+            <div class="mode-title">Klasyczna gra</div>
+            <div class="mode-desc">25 film\u00f3w</div>
+          </button>
+          <button class="mode-btn" onclick="startGame(MOVIES.length)">
+            <div class="mode-title">Maraton</div>
+            <div class="mode-desc">Wszystkie ${MOVIES.length} film\u00f3w</div>
+          </button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if (state.screen === "final") {
+    const maxScore = state.totalQuestions * 3;
+    const pct = Math.round((state.score / maxScore) * 100);
+    app.innerHTML = `
+      <div class="final-screen">
+        <div class="big-score">${state.score}/${maxScore}</div>
+        <div class="subtitle">${getScoreMessage(pct)} (${pct}%)</div>
+        <div class="breakdown">
+          <div class="breakdown-item exact">
+            <div class="num">${state.exact}</div>
+            <div class="label">\ud83c\udfaf Trafione</div>
+          </div>
+          <div class="breakdown-item close">
+            <div class="num">${state.close}</div>
+            <div class="label">\ud83d\udd25 Blisko (\u00b11)</div>
+          </div>
+          <div class="breakdown-item off">
+            <div class="num">${state.off}</div>
+            <div class="label">\u274c Pud\u0142o</div>
+          </div>
+        </div>
+        <button class="restart-btn" onclick="state.screen='start';render()">Zagraj ponownie</button>
+      </div>
+    `;
+    return;
+  }
+
+  const movie = state.movies[state.current];
+  const progress = ((state.current + (state.answered ? 1 : 0)) / state.totalQuestions) * 100;
+  const posterUrl = getPosterUrl(movie.posterPath);
+  const result = state.answered ? state.results[state.results.length - 1] : null;
+
+  let buttonsHtml = "";
+  for (let i = 1; i <= 10; i++) {
+    let cls = "rating-btn";
+    if (state.answered) {
+      if (result.guess === i && result.diff === 0) cls += " correct";
+      else if (result.guess === i && result.diff > 0) cls += " wrong";
+      if (movie.rating === i && result.diff > 0) cls += " actual";
+    }
+    buttonsHtml += `<button class="${cls}" onclick="answer(${i})" ${state.answered ? "disabled" : ""}>${i}</button>`;
+  }
+
+  let feedbackHtml = "";
+  if (state.answered) {
+    if (result.diff === 0) {
+      feedbackHtml = `<div class="result-feedback correct">\ud83c\udfaf Trafione! +3 pkt</div>`;
+    } else if (result.diff === 1) {
+      feedbackHtml = `<div class="result-feedback wrong">\ud83d\udd25 Blisko! Dawid da\u0142 <strong>${movie.rating}</strong> (+1 pkt)</div>`;
+    } else {
+      feedbackHtml = `<div class="result-feedback wrong">\u274c Dawid da\u0142 <strong>${movie.rating}</strong><div class="detail">Tw\u00f3j typ: ${result.guess} (r\u00f3\u017cnica: ${result.diff})</div></div>`;
+    }
+    feedbackHtml += `<button class="next-btn" onclick="nextQuestion()">${state.current + 1 < state.totalQuestions ? "Nast\u0119pny film \u2192" : "Zobacz wynik \u2192"}</button>`;
+  }
+
+  const fallback = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#222;color:#555;font-size:3rem">\ud83c\udfac</div>';
+  const posterHtml = posterUrl
+    ? `<img src="${posterUrl}" alt="${movie.title}" onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('beforeend','${fallback.replace(/'/g,"\\'")}');">`
+    : fallback;
+
+  const origTitle = (movie.originalTitle && movie.originalTitle !== movie.title)
+    ? `<div class="original-title">${movie.originalTitle}</div>` : "";
+
+  app.innerHTML = `
+    <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+    <div class="stats">
+      <span>Film ${state.current + 1} z ${state.totalQuestions}</span>
+      <span class="score">\u2b50 ${state.score} pkt</span>
+    </div>
+    <div class="movie-card">
+      <div class="movie-top">
+        <div class="poster-wrap">${posterHtml}</div>
+        <div class="movie-info">
+          <h2>${movie.title}</h2>
+          ${origTitle}
+          <div class="movie-meta">
+            <span class="meta-badge">\ud83d\udcc5 ${movie.year}</span>
+            <span class="meta-badge">\ud83c\udfac ${movie.director}</span>
+          </div>
+          <div class="movie-desc">${movie.description}</div>
+        </div>
+      </div>
+      <div class="rating-section">
+        <div class="rating-label">Jak Dawid oceni\u0142 ten film? (1-10)</div>
+        <div class="rating-buttons">${buttonsHtml}</div>
+        ${feedbackHtml}
+      </div>
+    </div>
+  `;
+}
+
+render();
+</script>
+</body>
+</html>
