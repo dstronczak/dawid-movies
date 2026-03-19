@@ -5,3 +5,7 @@ movies_data.json
 # IDE / OS
 .DS_Store
 .claude/
+
+# Node
+node_modules/
+dist/
